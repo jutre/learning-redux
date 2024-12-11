@@ -1,0 +1,1078 @@
+/*typical margin or padding values used in styling will be base value of dobule value.
+For better readibility create dedicated variables instead of multiplying in CSS rules */
+
+$margin_padding_base: 15px;
+$margin_padding_double: $margin_padding_base * 2;
+
+$mobile-breakpoint:550px;
+$tablet-breakpoint-768px:768px;
+$widescreen-tablet-breakpoint:1000px;
+$laptop-breakpoint:1366px;
+$button-padding:10px;
+$elements-border-radius:8px;
+
+$text-color:rgb(31, 41, 55);
+$link_hover_color:rgb(149, 149, 149);
+$checkbox_color:rgb(64, 102, 165);
+$devider_border_color: grey;
+
+
+//"button-appearance" mixin can't be used for buttons with svg masks, but we need background values also there
+$button_background_color: rgb(70, 170, 233);
+$button_hover_background_color: rgb(0, 118, 192);
+
+@mixin button-appearance {
+    border-width: 0px;
+    border-radius: $elements-border-radius;
+    color: white;
+    background-color: $button_background_color;
+    background-clip: border-box;
+    cursor: pointer;
+    padding: $button-padding;
+
+    &:hover {
+        background-color: rgb(0, 118, 192);
+    }
+}
+
+
+
+//basic props css for creating ::before pseudo element which serves as background for edit, delete links, 
+//for buttons
+@mixin pseudo-element-with-mask-basic-props($background-image, $mask-size, $background-color: white) {
+    content: "";
+    mask-image: url($background-image);
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: $mask-size;
+    background-color: $background-color;
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: -10;
+}
+
+
+
+*{
+    box-sizing:border-box;
+}
+
+body, h1, h2, h3, h4, h5, h6, ul{
+    margin: 0;
+}
+
+body{
+    background-color: #eeeeee;
+    
+}
+
+
+body, a, input, textarea, button{
+    color: $text-color;
+    text-decoration: none;
+    font-family: "Source Sans Pro", sans-serif;
+    font-weight: 400;
+    font-size: 1em;
+}
+button{
+    font-size: 1em;
+}
+
+
+a{
+    &:hover{
+        color: $link_hover_color; 
+    }
+    &:focus{
+        color: $text-color; 
+    }
+}
+
+p a{
+    color:rgb(64, 102, 165);
+}
+
+
+h1{
+    font-size: 24px;
+    line-height: 29px;
+    margin-bottom: $margin_padding_double;
+}
+
+.root_container{
+    display: flex;
+    min-height: 100vh;
+}
+.left_column{
+    @media screen and (min-width: $widescreen-tablet-breakpoint) { 
+        //left column has minimal width - the width of largest menu entry as there is one menu antry with toggling text  -changes width
+        //causing left column width change
+        flex: 1 0 auto;
+        display: flex;
+        justify-content: center;
+    }
+    @media screen and (min-width: $laptop-breakpoint) { 
+        flex: 1 0 0;
+        justify-content: right;
+    }
+}
+.central_column{
+    position: relative;
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    @media screen and (min-width: $widescreen-tablet-breakpoint) {     
+        position: relative;
+        flex: 0 0 840px;
+    }
+
+    @media screen and (min-width: $laptop-breakpoint) {     
+        flex: 0 0 950px;
+    }
+    
+}
+.right_column{
+    @media screen and (min-width: $widescreen-tablet-breakpoint) { 
+        flex: 1 1 auto;
+    }
+    @media screen and (min-width: $laptop-breakpoint) { 
+        flex: 1 0 0;
+    }
+}
+
+
+.settings_menu{
+    position: absolute;
+    top: 7px;
+    //same indent from container as other elements
+    right: 20px;
+    z-index: 1100;
+
+    button.settings_icon{
+        height: 22px;
+        width: 22px;
+        //disable background and border of button
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        z-index: 20;
+
+        &::before{
+            @include pseudo-element-with-mask-basic-props("assets/settings.svg", 22px, #555);
+        }
+        //override icon hover color
+        &:hover:before{
+            background-color: $link_hover_color;
+        }
+    }
+
+    .body{
+        position: absolute;
+        margin-top: 1px;
+        right: 0;
+        //initially hide the menu
+        display: none;
+    }
+}
+.settings_menu .body.active{
+    display: block;
+}
+
+.settings_form{
+    padding: 8px;
+    background-color: white;
+    border: 1px solid $devider_border_color;
+    border-radius: $elements-border-radius;
+    .form_header{
+        margin-bottom: 8px;
+    }
+    .options_wrapper{
+        display: flex;
+        border: 1px solid $devider_border_color;
+    }
+    .option {
+        background-color: white;
+        
+        &.active{
+            background-color: #eee;
+            border-width: 2px 3px;
+            border-style: solid;
+            border-color: $devider_border_color white;
+        }
+
+        &:not(.active) label:hover{
+            background-color: $button_hover_background_color;
+            color: white;
+            cursor: pointer;
+        }
+        
+        
+        input[type=radio]{
+            position: absolute;
+            opacity: 0;
+
+            //styling to highlight radio group when user navigates using TAB key
+            &:focus-visible + label{
+                outline-style: auto;
+            }
+        }
+    }
+
+    //unselected option has border left and rirst child which is not active has border right - those styles are
+    //part of active option highligting style
+    .option.active  ~ .option{
+        border-left: 1px solid $devider_border_color;
+    }
+    .option:first-child:not(.active) {
+        border-right: 1px solid $devider_border_color;
+    }
+    
+    label{
+        display: block;
+        min-width: 135px;
+        height: 100%;
+        padding: $margin_padding_base;
+    }
+        
+    
+    
+}
+
+
+.list_type_menu{
+    position: fixed;
+    bottom: 0;
+    z-index: 100;
+    width: 100%;
+
+    @media screen and (min-width: $widescreen-tablet-breakpoint) {     
+        position: static;
+        bottom: unset;
+        width: auto;
+    }
+
+    @media screen and (min-width: $laptop-breakpoint) {     
+        padding-right: $margin_padding_double;
+    }
+    
+    .items_wrapper{
+        display: flex;
+        padding: $margin_padding_base 0;
+        border-top: 2px solid black;
+        background-color: white;
+    
+        @media screen and (min-width: $widescreen-tablet-breakpoint) {
+            padding-top: 110px;
+            display: block;
+            width: unset;
+            border-top: none;
+            background-color: unset;
+        }
+    }
+    
+    a{
+        display: block;
+        font-weight: bold;
+        padding: 5px 10px;
+        border: 1px solid black;
+        border-radius: $elements-border-radius;
+
+        @media screen and (min-width: $widescreen-tablet-breakpoint) {
+            padding: 10px $margin_padding_base 10px 10px;
+            border:none;
+        }
+
+        &:hover span{
+            @media screen and (min-width: $widescreen-tablet-breakpoint) {
+                display:block;
+                transition: transform 0.2s linear;
+                transform: scale(1.08);
+                transform-origin: left top;
+            }
+        }
+    }
+
+
+    .item{
+        flex: 0 0 50%;
+        display: flex;
+        justify-content: center;
+        @media screen and (min-width: $widescreen-tablet-breakpoint) {
+            flex: unset; 
+            text-align: left;
+            display: block;
+        }
+    
+        &.active a{
+            background-color: #c6c9ce;
+        }
+    }
+    
+}
+
+.header{
+    background-color: #c6c9ce;
+    padding: $margin_padding_double $margin_padding_base;
+    @media screen and (min-width: $mobile-breakpoint) {
+        padding: $margin_padding_double  $margin_padding_double;
+    }
+    
+    //additional wrapper is needed to place absolute positioned popup div correctly in existing context
+    .wrapper{
+        display: flex;
+        //if search box width becomes less than mimimal set, it reflows under the "About info" tab. 
+        //It can happen on some tablet devices
+        flex-wrap: wrap;
+        align-items: center;
+        gap: $margin_padding_base;
+        position: relative;
+        //this div contains two abosolute positioned divs, one of it also has links as children. To get those links have css :hover effect,
+        //be clickable, to overlap other absolute positioned divs in container's next sibling, it is was not enough to set z-index
+        //on abosolute positioned divs itself, z-index must be attached to paren't div. Also 
+        z-index: 1000;
+
+        //not needed beginning from laptop screens, make search input fields look more centered
+        @media screen and (min-width: $widescreen-tablet-breakpoint) { 
+            gap: unset;
+        }
+    }
+}
+
+
+.about-info-pane{
+
+    //a div after info div control tab. Acts only as technical clickable area for hiding info pane, must fill all area of
+    //info div's container
+    .tab-row-supplement{
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+    
+    .tab{
+        position: relative;
+        z-index: 21;
+        //to be stacked above popup div body and together with transparent bottom border in active state tab would have 
+        //visually undevided common background with popup div
+        margin-bottom: -1px;
+        cursor: pointer;
+        max-width: max-content;
+        background-color: rgb(131, 230, 230);
+        border: 1px solid $devider_border_color;
+        //border below tab must become visible at the end of div's collapsing,
+        transition: border-color 0.1s step-end;
+        padding: $margin_padding_base;
+
+        .icon{
+            display: inline-block;
+            width: 20px;
+            height: 10px;
+            position: relative;
+
+            /*creating arrow using pseudo element */
+            &:after {
+                content: "";
+                position: absolute;
+                left: 0;
+                border-width: 10px 10px 0 10px;
+                border-style: solid;
+                border-color: #555 transparent transparent transparent;
+                transition: transform 0.1s linear;
+            }
+        }
+    }
+
+    .collapsible_body_wrapper {
+        display: flex;
+        overflow: hidden;
+        position: absolute;
+        //in mobile view info div's body must be stacked above input fields which goes as next sibling
+        z-index: 20;
+    }
+
+    .body{
+        width: 100%;
+        background-color: rgb(131, 230, 230);
+        border-color: $devider_border_color;
+        border-style: solid;
+        border-width: 1px;
+        padding: $margin_padding_base;
+        line-height: 26px;
+
+        //transition function and margin-bottom, max-height allowing to take div it's natural height and space
+        transition: margin-bottom 0.3s cubic-bezier(0, 0, 0, 1);
+        margin-bottom: 0;
+        max-height: 1000000px;
+        visibility: visible;
+        
+        //create custom bullets
+        ul{
+            list-style: none;
+            padding-left: $margin_padding_double;
+            li{
+                position: relative;
+
+                &:before{
+                    content: "";
+                    display: block;
+                    position: absolute;
+                    left: -23px;
+                    top: 9px;
+                    
+                    background-color: #5f9ea0;
+                    width: 10px;
+                    height: 10px;
+                }
+            }
+        }
+    }     
+        
+}
+
+
+.about-info-pane.active{ 
+
+     .tab {
+        //when info pane opened, remove border under the tab
+        border-bottom-color: transparent;
+        //when tab becomes active, border under tab must disappear immediatelly because 
+        //info div underneath is starting to appear and a tab must have common
+        //unseparated background with div underneath, remove transition for border-bottom 
+        //disapper with delay that was needed while hiding active popupdiv
+        transition: unset;
+
+        //flip the triangle
+        .icon::after{
+            transform: rotate(-180deg);
+        }
+    }
+
+}
+  
+//hiding info popup div
+.about-info-pane:not(.active) .body {
+    margin-bottom: -2000px;
+    transition: margin-bottom 0.3s cubic-bezier(1, 0, 1, 1), visibility 0s 0.3s, max-height 0s 0.3s;
+    visibility: hidden;
+    max-height: 0;
+  }
+
+
+.search-bar{
+    //place search input field in the middle of space between popup info div actuator and central container column right edge
+    position: relative;
+    flex: 1 0 auto;
+    display: flex;
+
+    //make element width so that it is wrapped after previous until width of widespread tablet device with 
+    min-width: 90%;
+
+    //on minimal tablet width start aligning search field next to "About" menu by preventing
+    @media screen and (min-width: $tablet-breakpoint-768px) {
+        min-width: unset;
+    }
+
+    @media screen and (min-width: 800px) {
+        justify-content: center;
+    }
+
+    //on desktop screens place search input field in the middle of central container column
+    @media screen and (min-width: $laptop-breakpoint) {
+        position: absolute;
+        top: 50%;
+        left:50%; 
+        transform: translateX(-50%) translateY(-50%);
+        width: 500px;
+    }
+
+    .form_and_results_container{
+        flex: 1 1 auto;
+        position: relative;
+        width: 100%;
+
+        @media screen and (min-width: $tablet-breakpoint-768px) {
+            max-width: 485px;
+        }
+    }
+    
+
+    .search-form{
+        position: relative;
+        //input field's border has to be visible above it's next sibling div (resut list)
+        z-index: 12;
+        
+        input {
+            padding-right: 70px;
+            //width to equal with form width, but form is equal to containing element width, 
+            width: 100%;
+        }
+
+       .actions{
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            padding-right: 8px;
+
+            button{
+                height: 36px;
+                width: 36px;
+                background-color: transparent;
+                border-style: none;
+                mask-position: center;
+                mask-repeat: no-repeat;
+                padding: 0;
+                position: relative;
+                z-index: 20;
+            }
+
+            button.clear::before{
+                @include pseudo-element-with-mask-basic-props("assets/clear-form.svg", 13px, red);
+            }
+            button.submit::before{
+                @include pseudo-element-with-mask-basic-props("assets/search-submit.svg", 21px, black);
+              
+            }
+       }
+    }
+}
+
+.search-results{
+    display: none;
+    width: 100%;
+    position: absolute;
+    margin-top: -$margin_padding_base;
+    padding-top: $margin_padding_base;
+    
+    background-color: white;
+    border-radius: 0 0 $elements-border-radius $elements-border-radius;
+    border: 1px solid gray;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+    
+    
+    .result_item{ 
+        a {
+            display: block;
+            padding: $margin_padding_base;
+            position: relative;
+            //to always be visible over element created using :before pseudo element
+            z-index: 1;
+        }
+        //last item and :before pseudo element in it must have rounded bottom corner radius to not overlap
+        //parent element's rounded bottom corners with border
+        &:last-child a{
+            border-radius: 0 0 $elements-border-radius $elements-border-radius;
+
+            &:before{
+                border-radius: 0 0 $elements-border-radius $elements-border-radius;
+            }
+        }
+    }
+    
+    //when found item link is hovered expand it's background from middle of link to margins. It is achieved using ::before
+    //pseudo element. Create such effect only on links which are links to book editing pages. There may be also a link with 
+    //url to books search result list, it will have other styling on hover
+    .result_item:not(.list_all_results_link) a {
+        &:before{
+            content: "";
+            display: block;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 0;
+            position: absolute;
+            background-color: #f4f4f6;
+            width: 0;
+            height: 100%;
+            z-index: -1;
+            transition: width 0.1s ease-in;
+        }
+
+        &:hover{
+            //override link hover color - same ar link color
+            color: $text-color;
+
+            &:before{
+                width: 100%;
+            }
+        }
+    }
+
+    .list_all_results_link{
+        text-align: center;
+    }
+}
+.search-results.active{
+    display: block;
+}
+  
+
+
+.error{
+    color: red;
+    border: 1px solid red;
+    border-radius: $elements-border-radius;
+    padding: 10px;
+    //prevent spanning to whole available width
+    width: max-content; 
+    margin-bottom: $margin_padding_base;
+}
+
+
+
+//class for element that wraps around content for creating padding, background for content
+.content_wrapper{
+    //will stretch vertically content part with bg color till end of container
+    flex-grow: 1;
+    background-color: white;
+
+    $space_behind_menu_at_page_bottom: 65px;
+    //on screens until 1000px wide menu is placed fixed at browser's window bottom, set wrapper's  
+    //padding-bottom a little more than menu height
+    padding: $margin_padding_double $margin_padding_base $space_behind_menu_at_page_bottom;
+
+    @media screen and (min-width: $mobile-breakpoint) {
+        //a little more left, right padding on tablet devices
+        padding: $margin_padding_double $margin_padding_double $space_behind_menu_at_page_bottom;
+    }
+
+    @media screen and (min-width: $widescreen-tablet-breakpoint) {
+        padding-bottom:  $margin_padding_double;
+    }
+}
+
+.loading_status_indicator{
+    position: absolute;
+    margin-top: -25px;
+    color: green;
+    
+    .error{
+        border: none;
+        padding: 0;
+        
+    }
+}
+
+.navigation{
+    padding-bottom: $margin_padding_double;
+
+    a{
+        text-transform: uppercase;
+        font-weight: bold;
+        text-decoration: underline;
+
+        &::before{
+            content: "";
+            background-color: black;
+            mask-image: url("assets/return-button.svg");
+            mask-position: center;
+            mask-repeat: no-repeat;
+            mask-size: 100%;
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 5px;
+        }
+
+        &:hover{
+            color: $link_hover_color;
+
+            &:before {
+                    background-color: $link_hover_color;
+            }
+        }
+    }
+}
+
+
+.book_list{
+    position: relative;
+
+    .search_results_summary{
+        padding: $margin_padding_base 0;
+        a{
+            font-weight: bold;
+            text-decoration: underline;
+        }
+    }
+}
+
+.add_book_link {
+    position: absolute;
+    top: 0;
+    right: 0; 
+
+    a {
+        @include button-appearance;
+        padding-left: 30px;
+        text-decoration: none;
+        color: #fff;
+        
+        &::before {
+            content: "+";
+            position: absolute;
+            left: 10px;
+        }
+    }
+}
+
+.action_button {
+    border-width: 0px;
+    border-radius: 50%;
+    color: white;
+    background-color: $button_background_color;
+    background-clip: border-box;
+    cursor: pointer;
+    width: 35px;
+    height: 35px;
+    
+    /*make relative and assign z-index as it contains positioned element acting as icon and
+    may contain link which should be stacked in front of icon, icon's z-index must be smaller*/
+    position: relative;
+    z-index: 20;
+
+
+    &.edit {
+        &::before {
+            @include pseudo-element-with-mask-basic-props("assets/edit.svg", 20px);
+        }
+    }
+
+    &.delete {
+        &::before {
+            @include pseudo-element-with-mask-basic-props("assets/delete.svg", 20px);
+        }
+    }
+
+    &.add-to-favorites {
+        &::before {
+            @include pseudo-element-with-mask-basic-props("assets/add-to-favourites-flag.svg", 20px);
+        }
+    }
+
+    &.is-added-to-favorites {
+        &::before {
+            @include pseudo-element-with-mask-basic-props("assets/is-added-to-favorites-flag.svg", 20px);
+            background-color: black;
+        }
+    }
+
+    &:hover {
+        background-color: $button_hover_background_color;
+    }
+
+    //any links inside rounded container should fill the container div
+    a {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+    }
+}
+
+.action_button.disabled{
+    background-color: #ccc;
+    cursor: default;
+}
+
+
+.checkbox_wrapper{
+    display: flex;
+    align-items: center;
+    padding-right: $margin_padding_base;
+}
+.custom_checkbox{
+    border: 2px solid $checkbox_color;
+    display: block;
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    position: relative;
+    background-color: white;
+}
+
+.book_list_selection_bar{
+    display: flex;
+}
+
+
+.custom_checkbox.all_items_deselector::before {
+    content: "";
+    display: block;
+    width: 9px;
+    height: 2px;
+    border-radius: 3px;
+    background-color: $checkbox_color;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    position: absolute;
+}
+
+.book_editing{ 
+    .content_section{
+        max-width: 700px;
+        position: relative;
+    }
+
+    .delete_book_link{
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+}
+
+
+.book_list .item{
+
+    input[type=checkbox]{
+        position: absolute;
+        opacity: 0;
+
+        &:checked + .custom_checkbox{
+            background-color: #ccc;
+            
+            &:after {
+                content: "";
+                position: absolute;
+                left: 4px;
+                top: 0px;
+                width: 4px;
+                height: 9px;
+                border: solid $checkbox_color;
+                border-width: 0 2px 2px 0;
+                transform: rotate(45deg);
+            }
+        }
+
+        //create outline for element that represents checkbox when page is navigated by keyboard TAB key
+        //as original input checkbox and it's outline is not visible
+        &:focus-visible + .custom_checkbox{
+            outline-style: auto;
+        }
+    }
+}
+
+
+.book_list{
+    .item {
+        display: flex;
+
+        &:not(:last-child) {
+            border-bottom: 1px solid $devider_border_color;
+        }
+
+        .book_info {
+            flex: 1 1 auto;
+            padding: $margin_padding_base 0;
+        }
+
+        .author{
+            font-size: 0.8em;
+        }
+
+        .actions {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            .action_button{
+                margin-left: 10px;
+            }
+        }
+    }
+}
+
+.overlay_for_modal_dialog{
+    position: fixed;
+    inset: 0px;
+    z-index: 3000;
+    background-color: rgba(0, 0, 0, 0.65);
+}
+.modal_dialog{
+    position: fixed;
+    inset: 0px;
+    z-index: 3000;
+    overflow: auto;
+
+    .container{
+        display: flex;
+        width: 100%;
+        min-height: 100%;
+        align-items: flex-start;
+        justify-content: center;      
+    }
+
+    .body{
+        display: flex;
+        flex-direction: column;
+        border-width: 0px;
+        border-radius: $elements-border-radius;
+        margin-top: 30px;
+        width: 460px;
+        background-color: white;
+    } 
+
+    .content{
+        text-align: center;
+        padding: 30px;
+    }
+
+    .options{
+        padding: 40px 80px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    button{
+        @include button-appearance;
+    
+        &.button_cancel{
+            display: flex;
+            justify-content: center;
+            cursor: pointer;
+            padding: $button-padding;
+            margin-top: $margin_padding_base;
+            background-color: white;
+            color: $button_background_color;
+
+            &:hover{
+                color: rgb(0, 118, 192);
+            }
+            
+        }
+    }
+    
+
+    
+}
+
+
+.create_book{ 
+    position: relative;
+
+    .content_section{
+        max-width: 700px;
+        position: relative;
+    }
+
+    .edit_book_link_wrapper{
+        a{
+            display: flex;
+            align-items: center;
+            max-width: max-content;
+
+            .action_button {
+                margin-left: 5px;
+            }
+            //fixing background for action_button class when it is in hovered link. Usually it is not needed as
+            //element with class "action_button" is hovered directly as is contains link or button but this 
+            //link time it is inside link; also set link text to black on hover to be visually synchronized
+            //with button dark background on hover
+            &:hover{ 
+                color: black;
+
+                .action_button {
+                background-color: $button_hover_background_color;
+            }}
+        }
+    }
+    .edit_book_link{
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+}
+
+div.table{
+    margin-bottom: $margin_padding_base;
+
+    .row{
+        display: flex;
+        
+        .field_title{
+            flex: 0 0 100px;
+            font-weight: bold;
+        }
+        > div{
+            padding: 0 $margin_padding_base $margin_padding_base 0;
+         }
+    }
+}
+
+.disappearing_message{
+    background-color: green;
+    border-radius: $elements-border-radius;
+    color: white;
+    width: max-content;
+    position: absolute;
+    margin-top: -30px;
+    padding: 4px;
+    opacity: 1;
+    transition: all 1s ease-out;
+}
+
+.disappearing_message.hidden{
+    margin-top: -37px;
+    opacity: 0;
+}
+
+//forms and text input fields in content section
+.content_wrapper form{
+    max-width: 700px;
+
+    .field{
+        margin-bottom: 25px;
+    }
+
+    label{
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    
+        &::after{
+            content: ":";
+        }
+    }
+
+    textarea, [type="text"]{
+        width: 100%;
+    }
+
+    textarea{
+        resize: none;
+    }
+
+    .input_error{
+        padding: 2px 0 0 5px;
+        color: red;
+        @media screen and (min-width: $mobile-breakpoint) {
+            //don't shift elements below when displayed
+            position: absolute;
+        }
+    }
+}
+
+input, textarea{
+    display: block;
+    padding: 10px;
+    border: 1px solid rgb(229, 231, 235);
+    border-radius: $elements-border-radius;
+}
+
+textarea:focus, [type="text"]:focus{
+    //box-shadow: rgb(255, 255, 255) 0px 0px 0px 0px, rgb(63, 131, 248) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+    border-color:rgb(107, 114, 128);
+    outline: none;
+}
+
+input[disabled], textarea[disabled]{
+    color: gray;
+}
